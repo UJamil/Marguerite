@@ -1,0 +1,582 @@
+ARM GAS  /tmp/cczyTOJr.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"main.cpp"
+  13              		.text
+  14              		.section	.text._ZN5daisy10DaisyFieldD2Ev,"axG",%progbits,_ZN5daisy10DaisyFieldD5Ev,comdat
+  15              		.align	1
+  16              		.p2align 2,,3
+  17              		.weak	_ZN5daisy10DaisyFieldD2Ev
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	_ZN5daisy10DaisyFieldD2Ev:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 7047     		bx	lr
+  30              		.weak	_ZN5daisy10DaisyFieldD1Ev
+  31              		.thumb_set _ZN5daisy10DaisyFieldD1Ev,_ZN5daisy10DaisyFieldD2Ev
+  32 0002 00BF     		.section	.text._ZN7daisysp10OscillatorD2Ev,"axG",%progbits,_ZN7daisysp10OscillatorD5Ev,comdat
+  33              		.align	1
+  34              		.p2align 2,,3
+  35              		.weak	_ZN7daisysp10OscillatorD2Ev
+  36              		.syntax unified
+  37              		.thumb
+  38              		.thumb_func
+  39              		.fpu fpv5-d16
+  41              	_ZN7daisysp10OscillatorD2Ev:
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+  44              		@ link register save eliminated.
+  45 0000 7047     		bx	lr
+  47              		.weak	_ZN7daisysp10OscillatorD1Ev
+  48              		.thumb_set _ZN7daisysp10OscillatorD1Ev,_ZN7daisysp10OscillatorD2Ev
+  49 0002 00BF     		.section	.text._ZN7daisysp6PhasorD2Ev,"axG",%progbits,_ZN7daisysp6PhasorD5Ev,comdat
+  50              		.align	1
+  51              		.p2align 2,,3
+  52              		.weak	_ZN7daisysp6PhasorD2Ev
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  56              		.fpu fpv5-d16
+  58              	_ZN7daisysp6PhasorD2Ev:
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+  61              		@ link register save eliminated.
+  62 0000 7047     		bx	lr
+ARM GAS  /tmp/cczyTOJr.s 			page 2
+
+
+  64              		.weak	_ZN7daisysp6PhasorD1Ev
+  65              		.thumb_set _ZN7daisysp6PhasorD1Ev,_ZN7daisysp6PhasorD2Ev
+  66 0002 00BF     		.section	.text._ZL13AudioCallbackPfS_j,"ax",%progbits
+  67              		.align	1
+  68              		.p2align 2,,3
+  69              		.syntax unified
+  70              		.thumb
+  71              		.thumb_func
+  72              		.fpu fpv5-d16
+  74              	_ZL13AudioCallbackPfS_j:
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77 0000 4AB3     		cbz	r2, .L13
+  78 0002 013A     		subs	r2, r2, #1
+  79 0004 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  80 0008 0546     		mov	r5, r0
+  81 000a 0C46     		mov	r4, r1
+  82 000c 0026     		movs	r6, #0
+  83 000e 22F00108 		bic	r8, r2, #1
+  84 0012 114F     		ldr	r7, .L16
+  85              	.L7:
+  86 0014 1148     		ldr	r0, .L16+4
+  87 0016 0835     		adds	r5, r5, #8
+  88 0018 FFF7FEFF 		bl	_ZN7daisysp6Phasor7ProcessEv
+  89 001c DFED107A 		vldr.32	s15, .L16+8
+  90 0020 0D48     		ldr	r0, .L16
+  91 0022 0834     		adds	r4, r4, #8
+  92 0024 20EE270A 		vmul.f32	s0, s0, s15
+  93 0028 87ED020A 		vstr.32	s0, [r7, #8]
+  94 002c FFF7FEFF 		bl	_ZN7daisysp10Oscillator12CalcPhaseIncEf
+  95 0030 0948     		ldr	r0, .L16
+  96 0032 87ED060A 		vstr.32	s0, [r7, #24]
+  97 0036 FFF7FEFF 		bl	_ZN7daisysp10Oscillator7ProcessEv
+  98 003a 55F8082C 		ldr	r2, [r5, #-8]	@ float
+  99 003e 4645     		cmp	r6, r8
+ 100 0040 06F10206 		add	r6, r6, #2
+ 101 0044 44F8082C 		str	r2, [r4, #-8]	@ float
+ 102 0048 55F8042C 		ldr	r2, [r5, #-4]	@ float
+ 103 004c 44F8042C 		str	r2, [r4, #-4]	@ float
+ 104 0050 E0D1     		bne	.L7
+ 105 0052 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 106              	.L13:
+ 107 0056 7047     		bx	lr
+ 108              	.L17:
+ 109              		.align	2
+ 110              	.L16:
+ 111 0058 00000000 		.word	.LANCHOR1
+ 112 005c 00000000 		.word	.LANCHOR0
+ 113 0060 00009643 		.word	1133903872
+ 115              		.section	.text.startup.main,"ax",%progbits
+ 116              		.align	1
+ 117              		.p2align 2,,3
+ 118              		.global	main
+ 119              		.syntax unified
+ 120              		.thumb
+ 121              		.thumb_func
+ 122              		.fpu fpv5-d16
+ARM GAS  /tmp/cczyTOJr.s 			page 3
+
+
+ 124              	main:
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 38B5     		push	{r3, r4, r5, lr}
+ 128 0002 2348     		ldr	r0, .L21
+ 129 0004 0025     		movs	r5, #0
+ 130 0006 234C     		ldr	r4, .L21+4
+ 131 0008 2DED028B 		vpush.64	{d8}
+ 132 000c FFF7FEFF 		bl	_ZN5daisy10DaisyField4InitEv
+ 133 0010 1F48     		ldr	r0, .L21
+ 134 0012 FFF7FEFF 		bl	_ZN5daisy10DaisyField15AudioSampleRateEv
+ 135 0016 B0EE408A 		vmov.f32	s16, s0
+ 136 001a 1F48     		ldr	r0, .L21+8
+ 137 001c B7EE000A 		vmov.f32	s0, #1.0e+0
+ 138 0020 DFED1E8A 		vldr.32	s17, .L21+12
+ 139 0024 80ED018A 		vstr.32	s16, [r0, #4]
+ 140 0028 C560     		str	r5, [r0, #12]	@ float
+ 141 002a FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 142 002e B7EE007A 		vmov.f32	s14, #1.0e+0
+ 143 0032 4FF07C53 		mov	r3, #1056964608
+ 144 0036 2046     		mov	r0, r4
+ 145 0038 B0EE680A 		vmov.f32	s0, s17
+ 146 003c 6360     		str	r3, [r4, #4]	@ float
+ 147 003e C7EE087A 		vdiv.f32	s15, s14, s16
+ 148 0042 6561     		str	r5, [r4, #20]	@ float
+ 149 0044 84ED038A 		vstr.32	s16, [r4, #12]
+ 150 0048 C4ED028A 		vstr.32	s17, [r4, #8]
+ 151 004c C4ED047A 		vstr.32	s15, [r4, #16]
+ 152 0050 FFF7FEFF 		bl	_ZN7daisysp10Oscillator12CalcPhaseIncEf
+ 153 0054 F0EE407A 		vmov.f32	s15, s0
+ 154 0058 0022     		movs	r2, #0
+ 155 005a 40F20113 		movw	r3, #257
+ 156 005e 2046     		mov	r0, r4
+ 157 0060 B0EE680A 		vmov.f32	s0, s17
+ 158 0064 2270     		strb	r2, [r4]
+ 159 0066 C4ED067A 		vstr.32	s15, [r4, #24]
+ 160 006a A384     		strh	r3, [r4, #36]	@ movhi
+ 161 006c C4ED028A 		vstr.32	s17, [r4, #8]
+ 162 0070 FFF7FEFF 		bl	_ZN7daisysp10Oscillator12CalcPhaseIncEf
+ 163 0074 4FF07A53 		mov	r3, #1048576000
+ 164 0078 0548     		ldr	r0, .L21
+ 165 007a 0949     		ldr	r1, .L21+16
+ 166 007c 84ED060A 		vstr.32	s0, [r4, #24]
+ 167 0080 6360     		str	r3, [r4, #4]	@ float
+ 168 0082 FFF7FEFF 		bl	_ZN5daisy10DaisyField10StartAudioEPFvPfS1_jE
+ 169 0086 0748     		ldr	r0, .L21+20
+ 170 0088 FFF7FEFF 		bl	_ZN5daisy9AdcHandle5StartEv
+ 171              	.L19:
+ 172 008c FEE7     		b	.L19
+ 173              	.L22:
+ 174 008e 00BF     		.align	2
+ 175              	.L21:
+ 176 0090 00000000 		.word	.LANCHOR2
+ 177 0094 00000000 		.word	.LANCHOR1
+ 178 0098 00000000 		.word	.LANCHOR0
+ 179 009c 0000C842 		.word	1120403456
+ 180 00a0 00000000 		.word	_ZL13AudioCallbackPfS_j
+ARM GAS  /tmp/cczyTOJr.s 			page 4
+
+
+ 181 00a4 18000000 		.word	.LANCHOR2+24
+ 183              		.section	.text.startup._GLOBAL__sub_I_hw,"ax",%progbits
+ 184              		.align	1
+ 185              		.p2align 2,,3
+ 186              		.syntax unified
+ 187              		.thumb
+ 188              		.thumb_func
+ 189              		.fpu fpv5-d16
+ 191              	_GLOBAL__sub_I_hw:
+ 192              		@ args = 0, pretend = 0, frame = 0
+ 193              		@ frame_needed = 0, uses_anonymous_args = 0
+ 194 0000 38B5     		push	{r3, r4, r5, lr}
+ 195 0002 0E4C     		ldr	r4, .L25
+ 196 0004 0023     		movs	r3, #0
+ 197 0006 0E4D     		ldr	r5, .L25+4
+ 198 0008 4FF40072 		mov	r2, #512
+ 199 000c 04F15600 		add	r0, r4, #86
+ 200 0010 0C49     		ldr	r1, .L25+8
+ 201 0012 6361     		str	r3, [r4, #20]
+ 202 0014 2364     		str	r3, [r4, #64]
+ 203 0016 FFF7FEFF 		bl	memcpy
+ 204 001a 2A46     		mov	r2, r5
+ 205 001c 2046     		mov	r0, r4
+ 206 001e 0A49     		ldr	r1, .L25+12
+ 207 0020 FFF7FEFF 		bl	__aeabi_atexit
+ 208 0024 2A46     		mov	r2, r5
+ 209 0026 0949     		ldr	r1, .L25+16
+ 210 0028 0948     		ldr	r0, .L25+20
+ 211 002a FFF7FEFF 		bl	__aeabi_atexit
+ 212 002e 2A46     		mov	r2, r5
+ 213 0030 0849     		ldr	r1, .L25+24
+ 214 0032 0948     		ldr	r0, .L25+28
+ 215 0034 BDE83840 		pop	{r3, r4, r5, lr}
+ 216 0038 FFF7FEBF 		b	__aeabi_atexit
+ 217              	.L26:
+ 218              		.align	2
+ 219              	.L25:
+ 220 003c 00000000 		.word	.LANCHOR2
+ 221 0040 00000000 		.word	__dso_handle
+ 222 0044 00000000 		.word	.LANCHOR3
+ 223 0048 00000000 		.word	_ZN5daisy10DaisyFieldD1Ev
+ 224 004c 00000000 		.word	_ZN7daisysp6PhasorD1Ev
+ 225 0050 00000000 		.word	.LANCHOR0
+ 226 0054 00000000 		.word	_ZN7daisysp10OscillatorD1Ev
+ 227 0058 00000000 		.word	.LANCHOR1
+ 229              		.section	.init_array,"aw",%init_array
+ 230              		.align	2
+ 231 0000 00000000 		.word	_GLOBAL__sub_I_hw(target1)
+ 232              		.global	hw
+ 233              		.section	.rodata
+ 234              		.align	2
+ 235              		.set	.LANCHOR3,. + 0
+ 236              	.LC0:
+ 237 0000 0000     		.short	0
+ 238 0002 0100     		.short	1
+ 239 0004 0100     		.short	1
+ 240 0006 0100     		.short	1
+ARM GAS  /tmp/cczyTOJr.s 			page 5
+
+
+ 241 0008 0100     		.short	1
+ 242 000a 0100     		.short	1
+ 243 000c 0100     		.short	1
+ 244 000e 0100     		.short	1
+ 245 0010 0100     		.short	1
+ 246 0012 0100     		.short	1
+ 247 0014 0100     		.short	1
+ 248 0016 0100     		.short	1
+ 249 0018 0200     		.short	2
+ 250 001a 0200     		.short	2
+ 251 001c 0200     		.short	2
+ 252 001e 0200     		.short	2
+ 253 0020 0200     		.short	2
+ 254 0022 0200     		.short	2
+ 255 0024 0200     		.short	2
+ 256 0026 0300     		.short	3
+ 257 0028 0300     		.short	3
+ 258 002a 0400     		.short	4
+ 259 002c 0400     		.short	4
+ 260 002e 0500     		.short	5
+ 261 0030 0500     		.short	5
+ 262 0032 0600     		.short	6
+ 263 0034 0700     		.short	7
+ 264 0036 0800     		.short	8
+ 265 0038 0800     		.short	8
+ 266 003a 0900     		.short	9
+ 267 003c 0A00     		.short	10
+ 268 003e 0B00     		.short	11
+ 269 0040 0C00     		.short	12
+ 270 0042 0D00     		.short	13
+ 271 0044 0F00     		.short	15
+ 272 0046 1000     		.short	16
+ 273 0048 1100     		.short	17
+ 274 004a 1200     		.short	18
+ 275 004c 1400     		.short	20
+ 276 004e 1500     		.short	21
+ 277 0050 1700     		.short	23
+ 278 0052 1900     		.short	25
+ 279 0054 1A00     		.short	26
+ 280 0056 1C00     		.short	28
+ 281 0058 1E00     		.short	30
+ 282 005a 2000     		.short	32
+ 283 005c 2200     		.short	34
+ 284 005e 2400     		.short	36
+ 285 0060 2600     		.short	38
+ 286 0062 2800     		.short	40
+ 287 0064 2B00     		.short	43
+ 288 0066 2D00     		.short	45
+ 289 0068 3000     		.short	48
+ 290 006a 3200     		.short	50
+ 291 006c 3500     		.short	53
+ 292 006e 3800     		.short	56
+ 293 0070 3B00     		.short	59
+ 294 0072 3E00     		.short	62
+ 295 0074 4100     		.short	65
+ 296 0076 4400     		.short	68
+ 297 0078 4700     		.short	71
+ARM GAS  /tmp/cczyTOJr.s 			page 6
+
+
+ 298 007a 4B00     		.short	75
+ 299 007c 4E00     		.short	78
+ 300 007e 5200     		.short	82
+ 301 0080 5500     		.short	85
+ 302 0082 5900     		.short	89
+ 303 0084 5D00     		.short	93
+ 304 0086 6100     		.short	97
+ 305 0088 6500     		.short	101
+ 306 008a 6900     		.short	105
+ 307 008c 6E00     		.short	110
+ 308 008e 7200     		.short	114
+ 309 0090 7700     		.short	119
+ 310 0092 7B00     		.short	123
+ 311 0094 8000     		.short	128
+ 312 0096 8500     		.short	133
+ 313 0098 8A00     		.short	138
+ 314 009a 8F00     		.short	143
+ 315 009c 9500     		.short	149
+ 316 009e 9A00     		.short	154
+ 317 00a0 9F00     		.short	159
+ 318 00a2 A500     		.short	165
+ 319 00a4 AB00     		.short	171
+ 320 00a6 B100     		.short	177
+ 321 00a8 B700     		.short	183
+ 322 00aa BD00     		.short	189
+ 323 00ac C300     		.short	195
+ 324 00ae CA00     		.short	202
+ 325 00b0 D000     		.short	208
+ 326 00b2 D700     		.short	215
+ 327 00b4 DE00     		.short	222
+ 328 00b6 E500     		.short	229
+ 329 00b8 EC00     		.short	236
+ 330 00ba F300     		.short	243
+ 331 00bc FA00     		.short	250
+ 332 00be 0201     		.short	258
+ 333 00c0 0A01     		.short	266
+ 334 00c2 1101     		.short	273
+ 335 00c4 1901     		.short	281
+ 336 00c6 2201     		.short	290
+ 337 00c8 2A01     		.short	298
+ 338 00ca 3201     		.short	306
+ 339 00cc 3B01     		.short	315
+ 340 00ce 4401     		.short	324
+ 341 00d0 4C01     		.short	332
+ 342 00d2 5501     		.short	341
+ 343 00d4 5F01     		.short	351
+ 344 00d6 6801     		.short	360
+ 345 00d8 7101     		.short	369
+ 346 00da 7B01     		.short	379
+ 347 00dc 8501     		.short	389
+ 348 00de 8F01     		.short	399
+ 349 00e0 9901     		.short	409
+ 350 00e2 A301     		.short	419
+ 351 00e4 AE01     		.short	430
+ 352 00e6 B801     		.short	440
+ 353 00e8 C301     		.short	451
+ 354 00ea CE01     		.short	462
+ARM GAS  /tmp/cczyTOJr.s 			page 7
+
+
+ 355 00ec D901     		.short	473
+ 356 00ee E501     		.short	485
+ 357 00f0 F001     		.short	496
+ 358 00f2 FC01     		.short	508
+ 359 00f4 0802     		.short	520
+ 360 00f6 1402     		.short	532
+ 361 00f8 2002     		.short	544
+ 362 00fa 2C02     		.short	556
+ 363 00fc 3902     		.short	569
+ 364 00fe 4602     		.short	582
+ 365 0100 5202     		.short	594
+ 366 0102 6002     		.short	608
+ 367 0104 6D02     		.short	621
+ 368 0106 7A02     		.short	634
+ 369 0108 8802     		.short	648
+ 370 010a 9602     		.short	662
+ 371 010c A402     		.short	676
+ 372 010e B202     		.short	690
+ 373 0110 C002     		.short	704
+ 374 0112 CF02     		.short	719
+ 375 0114 DE02     		.short	734
+ 376 0116 ED02     		.short	749
+ 377 0118 FC02     		.short	764
+ 378 011a 0B03     		.short	779
+ 379 011c 1B03     		.short	795
+ 380 011e 2B03     		.short	811
+ 381 0120 3B03     		.short	827
+ 382 0122 4B03     		.short	843
+ 383 0124 5B03     		.short	859
+ 384 0126 6C03     		.short	876
+ 385 0128 7D03     		.short	893
+ 386 012a 8E03     		.short	910
+ 387 012c 9F03     		.short	927
+ 388 012e B003     		.short	944
+ 389 0130 C203     		.short	962
+ 390 0132 D403     		.short	980
+ 391 0134 E603     		.short	998
+ 392 0136 F803     		.short	1016
+ 393 0138 0A04     		.short	1034
+ 394 013a 1D04     		.short	1053
+ 395 013c 3004     		.short	1072
+ 396 013e 4304     		.short	1091
+ 397 0140 5604     		.short	1110
+ 398 0142 6A04     		.short	1130
+ 399 0144 7E04     		.short	1150
+ 400 0146 9204     		.short	1170
+ 401 0148 A604     		.short	1190
+ 402 014a BA04     		.short	1210
+ 403 014c CF04     		.short	1231
+ 404 014e E404     		.short	1252
+ 405 0150 F904     		.short	1273
+ 406 0152 0E05     		.short	1294
+ 407 0154 2405     		.short	1316
+ 408 0156 3A05     		.short	1338
+ 409 0158 5005     		.short	1360
+ 410 015a 6605     		.short	1382
+ 411 015c 7C05     		.short	1404
+ARM GAS  /tmp/cczyTOJr.s 			page 8
+
+
+ 412 015e 9305     		.short	1427
+ 413 0160 AA05     		.short	1450
+ 414 0162 C105     		.short	1473
+ 415 0164 D905     		.short	1497
+ 416 0166 F005     		.short	1520
+ 417 0168 0806     		.short	1544
+ 418 016a 2006     		.short	1568
+ 419 016c 3906     		.short	1593
+ 420 016e 5106     		.short	1617
+ 421 0170 6A06     		.short	1642
+ 422 0172 8306     		.short	1667
+ 423 0174 9D06     		.short	1693
+ 424 0176 B606     		.short	1718
+ 425 0178 D006     		.short	1744
+ 426 017a EA06     		.short	1770
+ 427 017c 0507     		.short	1797
+ 428 017e 1F07     		.short	1823
+ 429 0180 3A07     		.short	1850
+ 430 0182 5507     		.short	1877
+ 431 0184 7107     		.short	1905
+ 432 0186 8C07     		.short	1932
+ 433 0188 A807     		.short	1960
+ 434 018a C407     		.short	1988
+ 435 018c E107     		.short	2017
+ 436 018e FD07     		.short	2045
+ 437 0190 1A08     		.short	2074
+ 438 0192 3708     		.short	2103
+ 439 0194 5508     		.short	2133
+ 440 0196 7208     		.short	2162
+ 441 0198 9008     		.short	2192
+ 442 019a AF08     		.short	2223
+ 443 019c CD08     		.short	2253
+ 444 019e EC08     		.short	2284
+ 445 01a0 0B09     		.short	2315
+ 446 01a2 2A09     		.short	2346
+ 447 01a4 4A09     		.short	2378
+ 448 01a6 6A09     		.short	2410
+ 449 01a8 8A09     		.short	2442
+ 450 01aa AA09     		.short	2474
+ 451 01ac CB09     		.short	2507
+ 452 01ae EC09     		.short	2540
+ 453 01b0 0D0A     		.short	2573
+ 454 01b2 2E0A     		.short	2606
+ 455 01b4 500A     		.short	2640
+ 456 01b6 720A     		.short	2674
+ 457 01b8 940A     		.short	2708
+ 458 01ba B70A     		.short	2743
+ 459 01bc DA0A     		.short	2778
+ 460 01be FD0A     		.short	2813
+ 461 01c0 210B     		.short	2849
+ 462 01c2 440B     		.short	2884
+ 463 01c4 680B     		.short	2920
+ 464 01c6 8D0B     		.short	2957
+ 465 01c8 B10B     		.short	2993
+ 466 01ca D60B     		.short	3030
+ 467 01cc FB0B     		.short	3067
+ 468 01ce 210C     		.short	3105
+ARM GAS  /tmp/cczyTOJr.s 			page 9
+
+
+ 469 01d0 470C     		.short	3143
+ 470 01d2 6D0C     		.short	3181
+ 471 01d4 930C     		.short	3219
+ 472 01d6 BA0C     		.short	3258
+ 473 01d8 E10C     		.short	3297
+ 474 01da 080D     		.short	3336
+ 475 01dc 300D     		.short	3376
+ 476 01de 580D     		.short	3416
+ 477 01e0 800D     		.short	3456
+ 478 01e2 A80D     		.short	3496
+ 479 01e4 D10D     		.short	3537
+ 480 01e6 FA0D     		.short	3578
+ 481 01e8 230E     		.short	3619
+ 482 01ea 4D0E     		.short	3661
+ 483 01ec 770E     		.short	3703
+ 484 01ee A10E     		.short	3745
+ 485 01f0 CC0E     		.short	3788
+ 486 01f2 F70E     		.short	3831
+ 487 01f4 220F     		.short	3874
+ 488 01f6 4E0F     		.short	3918
+ 489 01f8 7A0F     		.short	3962
+ 490 01fa A60F     		.short	4006
+ 491 01fc D20F     		.short	4050
+ 492 01fe FF0F     		.short	4095
+ 493              		.section	.bss._ZL4ramp,"aw",%nobits
+ 494              		.align	2
+ 495              		.set	.LANCHOR0,. + 0
+ 498              	_ZL4ramp:
+ 499 0000 00000000 		.space	16
+ 499      00000000 
+ 499      00000000 
+ 499      00000000 
+ 500              		.section	.bss._ZL8osc_sine,"aw",%nobits
+ 501              		.align	2
+ 502              		.set	.LANCHOR1,. + 0
+ 505              	_ZL8osc_sine:
+ 506 0000 00000000 		.space	40
+ 506      00000000 
+ 506      00000000 
+ 506      00000000 
+ 506      00000000 
+ 507              		.section	.bss.hw,"aw",%nobits
+ 508              		.align	2
+ 509              		.set	.LANCHOR2,. + 0
+ 512              	hw:
+ 513 0000 00000000 		.space	1036
+ 513      00000000 
+ 513      00000000 
+ 513      00000000 
+ 513      00000000 
+ 514              		.hidden	__dso_handle
+ 515              		.ident	"GCC: (GNU Arm Embedded Toolchain 9-2020-q2-update) 9.3.1 20200408 (release)"
+ARM GAS  /tmp/cczyTOJr.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.cpp
+     /tmp/cczyTOJr.s:15     .text._ZN5daisy10DaisyFieldD2Ev:0000000000000000 $t
+     /tmp/cczyTOJr.s:24     .text._ZN5daisy10DaisyFieldD2Ev:0000000000000000 _ZN5daisy10DaisyFieldD2Ev
+     /tmp/cczyTOJr.s:24     .text._ZN5daisy10DaisyFieldD2Ev:0000000000000000 _ZN5daisy10DaisyFieldD1Ev
+     /tmp/cczyTOJr.s:33     .text._ZN7daisysp10OscillatorD2Ev:0000000000000000 $t
+     /tmp/cczyTOJr.s:41     .text._ZN7daisysp10OscillatorD2Ev:0000000000000000 _ZN7daisysp10OscillatorD2Ev
+     /tmp/cczyTOJr.s:41     .text._ZN7daisysp10OscillatorD2Ev:0000000000000000 _ZN7daisysp10OscillatorD1Ev
+     /tmp/cczyTOJr.s:50     .text._ZN7daisysp6PhasorD2Ev:0000000000000000 $t
+     /tmp/cczyTOJr.s:58     .text._ZN7daisysp6PhasorD2Ev:0000000000000000 _ZN7daisysp6PhasorD2Ev
+     /tmp/cczyTOJr.s:58     .text._ZN7daisysp6PhasorD2Ev:0000000000000000 _ZN7daisysp6PhasorD1Ev
+     /tmp/cczyTOJr.s:67     .text._ZL13AudioCallbackPfS_j:0000000000000000 $t
+     /tmp/cczyTOJr.s:74     .text._ZL13AudioCallbackPfS_j:0000000000000000 _ZL13AudioCallbackPfS_j
+     /tmp/cczyTOJr.s:111    .text._ZL13AudioCallbackPfS_j:0000000000000058 $d
+     /tmp/cczyTOJr.s:116    .text.startup.main:0000000000000000 $t
+     /tmp/cczyTOJr.s:124    .text.startup.main:0000000000000000 main
+     /tmp/cczyTOJr.s:176    .text.startup.main:0000000000000090 $d
+     /tmp/cczyTOJr.s:184    .text.startup._GLOBAL__sub_I_hw:0000000000000000 $t
+     /tmp/cczyTOJr.s:191    .text.startup._GLOBAL__sub_I_hw:0000000000000000 _GLOBAL__sub_I_hw
+     /tmp/cczyTOJr.s:220    .text.startup._GLOBAL__sub_I_hw:000000000000003c $d
+     /tmp/cczyTOJr.s:230    .init_array:0000000000000000 $d
+     /tmp/cczyTOJr.s:512    .bss.hw:0000000000000000 hw
+     /tmp/cczyTOJr.s:234    .rodata:0000000000000000 $d
+     /tmp/cczyTOJr.s:494    .bss._ZL4ramp:0000000000000000 $d
+     /tmp/cczyTOJr.s:498    .bss._ZL4ramp:0000000000000000 _ZL4ramp
+     /tmp/cczyTOJr.s:501    .bss._ZL8osc_sine:0000000000000000 $d
+     /tmp/cczyTOJr.s:505    .bss._ZL8osc_sine:0000000000000000 _ZL8osc_sine
+     /tmp/cczyTOJr.s:508    .bss.hw:0000000000000000 $d
+                           .group:0000000000000000 _ZN5daisy10DaisyFieldD5Ev
+                           .group:0000000000000000 _ZN7daisysp10OscillatorD5Ev
+                           .group:0000000000000000 _ZN7daisysp6PhasorD5Ev
+
+UNDEFINED SYMBOLS
+_ZN7daisysp6Phasor7ProcessEv
+_ZN7daisysp10Oscillator12CalcPhaseIncEf
+_ZN7daisysp10Oscillator7ProcessEv
+_ZN5daisy10DaisyField4InitEv
+_ZN5daisy10DaisyField15AudioSampleRateEv
+_ZN7daisysp6Phasor7SetFreqEf
+_ZN5daisy10DaisyField10StartAudioEPFvPfS1_jE
+_ZN5daisy9AdcHandle5StartEv
+memcpy
+__aeabi_atexit
+__dso_handle
