@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**", "C:\\Users\\usman\\DocumentsGitHub\\Marguerite\\DaisyExamples\\DaisySP\\**", "C:\\Users\\usman\\Documents\\GitHub\\Marguerite\\DaisyExamples\\libDaisy\\src\\**"
+                "${workspaceFolder}/**", "C:\\Users\\usman\\Documents\\GitHub\\Marguerite\\DaisyExamples\\DaisySP\\**", "C:\\Users\\usman\\Documents\\GitHub\\Marguerite\\DaisyExamples\\libDaisy\\src\\**"
             ],
             "defines": [
                 "_DEBUG",

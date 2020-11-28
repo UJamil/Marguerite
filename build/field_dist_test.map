@@ -3115,7 +3115,7 @@ DISCARD
  libc.a(*)
  libm.a(*)
  libgcc.a(*)
-OUTPUT(build/field_phasor_test.elf elf32-littlearm)
+OUTPUT(build/field_dist_test.elf elf32-littlearm)
 LOAD linker stubs
 LOAD /home/ujamil/development/gcc-arm-none-eabi-9-2020-q2-update/bin/../lib/gcc/arm-none-eabi/9.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+dp/hard/libc.a
 LOAD /home/ujamil/development/gcc-arm-none-eabi-9-2020-q2-update/bin/../lib/gcc/arm-none-eabi/9.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+dp/hard/libm.a

@@ -1,5 +1,5 @@
 # Project Name
-TARGET = field_phasor_test
+TARGET = field_dist_test
 
 # Sources
 CPP_SOURCES = main.cpp
