@@ -6,6 +6,70 @@ using namespace daisysp;
 
 // Declare a local daisy_field for hardware access
 class DaisyField hw;
+int freqs[8];
+int bank;
+
+struct ConditionalUpdate
+{
+    float oldVal = 0;
+    bool Process(float newVal)
+    {
+        if (abs(newVal - oldVal) > 0.04)
+        {
+            oldVal = newVal;
+            return true;
+        }
+        return false;
+    }
+};
+
+ConditionalUpdate condUpdates[4];
+
+struct Filter
+{
+    Svf filt;
+    float amp;
+
+    void Init(float samplerate, float freq)
+    {
+        filt.Init(samplerate);
+        filt.SetRes(1);
+        filt.SetDrive(0.002);
+        filt.SetFreq(freq);
+        amp = 0.5f;
+    }
+
+    float Process(float in)
+    {
+        filt.Process(in);
+        return filt.Peak() * amp;
+    }
+};
+
+Filter filters[8];
+bool passthru;
+void UpdateControls();
+void UpdateLeds();
+
+void InitFreqs()
+{
+    freqs[0] = 350;
+    freqs[1] = 500;
+    freqs[2] = 750;
+    freqs[3] = 1100;
+    freqs[4] = 2200;
+    freqs[5] = 3600;
+    freqs[6] = 5200;
+    freqs[7] = 7500;
+}
+
+void InitFilters(float samplerate)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        filters[i].Init(samplerate, freqs[i])
+    }
+}
 
 float hardClip(float in)
 {
