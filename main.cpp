@@ -1,20 +1,23 @@
 #include "daisy_field.h"
 #include "daisysp.h" // Uncomment this if you want to use the DSP library.
+#include <stdio.h>
+#include <string>
 
 using namespace daisy;
 using namespace daisysp;
 
-// Declare a local daisy_field for hardware access
+// Declarations
 class DaisyField hw;
-int freqs[8];
-int bank;
+
+uint8_t knobs[8];
+char strbuff[128];
 
 struct ConditionalUpdate
 {
     float oldVal = 0;
     bool Process(float newVal)
     {
-        if (abs(newVal - oldVal) > 0.04)
+        if (abs(newVal - oldVal) > 0.04f)
         {
             oldVal = newVal;
             return true;
@@ -23,145 +26,223 @@ struct ConditionalUpdate
     }
 };
 
-ConditionalUpdate condUpdates[4];
+ConditionalUpdate condUpdate;
 
 struct Filter
 {
     Svf filt;
-    float amp;
+    float amp_, drv_, freq_, res_, rate_;
+    int type_;
 
-    void Init(float samplerate, float freq)
+    void Init(float samplerate)
     {
         filt.Init(samplerate);
-        filt.SetRes(1);
-        filt.SetDrive(0.002);
-        filt.SetFreq(freq);
-        amp = 0.5f;
+        filt.SetRes(0.5f);
+        filt.SetDrive(0.002f);
+        filt.SetFreq(420.0f);
+        rate_ = samplerate;
+        freq_ = 420.0f;
+        drv_ = 0.005f;
+        res_ = 0.5f;
+        amp_ = 1.0f;
+        type_ = 0;
     }
 
     float Process(float in)
     {
+        updateFreq(freq_);
+        updateRes(res_);
+        updateDrv(drv_);
         filt.Process(in);
-        return filt.Peak() * amp;
+
+        switch (type_)
+        {
+        case 0:
+            return filt.Low();
+        case 1:
+            return filt.Band();
+        case 2:
+            return filt.High();
+        default:
+            return filt.Low();
+        }
+    }
+    void updateFreq(float freq)
+    {
+        if (freq > (rate_ / 2))
+            freq = (rate_ / 2);
+        freq_ = freq;
+        filt.SetFreq(freq_);
+    }
+    void updateRes(float res)
+    {
+        if (res > 1.0f)
+            res = 1.0f;
+        res_ = res;
+        filt.SetRes(res_);
+    }
+    void updateDrv(float drv)
+    {
+        if (drv > 0.1f)
+            drv = 0.1f;
+        drv_ = drv;
+        filt.SetDrive(drv_);
+    }
+    void updateType(float type)
+    {
+        if (type <= 0.34)
+        {
+            type_ = 0;
+        }
+        else if (type > 0.34 && type <= 0.66)
+        {
+            type_ = 1;
+        }
+        else if (type > 0.66)
+        {
+            type_ = 2;
+        }
     }
 };
 
-Filter filters[8];
+Filter filter;
+OledDisplay display;
 bool passthru;
 void UpdateControls();
+void UpdateDisplay();
 void UpdateLeds();
 
-void InitFreqs()
+void InitKnobs()
 {
-    freqs[0] = 350;
-    freqs[1] = 500;
-    freqs[2] = 750;
-    freqs[3] = 1100;
-    freqs[4] = 2200;
-    freqs[5] = 3600;
-    freqs[6] = 5200;
-    freqs[7] = 7500;
+    knobs[0] = hw.KNOB_1;
+    knobs[1] = hw.KNOB_2;
+    knobs[2] = hw.KNOB_3;
+    knobs[3] = hw.KNOB_4;
+    knobs[4] = hw.KNOB_5;
+    knobs[5] = hw.KNOB_6;
+    knobs[6] = hw.KNOB_7;
+    knobs[7] = hw.KNOB_8;
 }
-
-void InitFilters(float samplerate)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        filters[i].Init(samplerate, freqs[i])
-    }
-}
-
-float hardClip(float in)
-{
-    in = in > 1.f ? 1.f : in;
-    in = in < -1.f ? -1.f : in;
-    return in;
-}
-
-float softClip(float in)
-{
-    if (in > 0)
-        return 1 - expf(-in);
-    return -1 + expf(in);
-}
-
-bool bypassHard, bypassSoft;
 
 // This runs at a fixed rate, to prepare audio samples
 static void AudioCallback(float **in, float **out, size_t size)
 {
-    hw.ProcessAnalogControls();
-    hw.UpdateDigitalControls();
-
-    float Pregain = hw.GetKnobValue(hw.KNOB_1) * 10 + 1.2;
-    float Gain = hw.GetKnobValue(hw.KNOB_2) * 100 + 1.2;
-    float drywet = hw.GetKnobValue(hw.KNOB_3);
-
-    bypassSoft = hw.GetSwitch(hw.SW_1)->RisingEdge() ? !bypassSoft : bypassSoft;
-    bypassHard = hw.GetSwitch(hw.SW_2)->RisingEdge() ? !bypassHard : bypassHard;
+    UpdateControls();
 
     for (size_t i = 0; i < size; i++)
     {
-
         for (int chn = 0; chn < 2; chn++)
         {
-            in[chn][i] *= Pregain;
-            float wet = in[chn][i];
+            float sig = in[chn][i];
+            sig += filter.Process(in[chn][i]);
+            sig *= 0.5f;
 
-            if (!bypassSoft || !bypassHard)
+            if (!passthru)
             {
-                wet *= Gain;
+                out[chn][i] = sig;
             }
-
-            if (!bypassSoft)
+            else
             {
-                wet = softClip(wet);
+                out[chn][i] = in[chn][i];
             }
-
-            if (!bypassHard)
-            {
-                wet = hardClip(wet);
-            }
-
-            out[chn][i] = wet * drywet + in[chn][i] * (1 - drywet);
         }
     }
 }
 
 int main(void)
 {
-    float sample_rate;
-    float soft_led = 0;
-    float hard_led = 0;
+    float samplerate;
     hw.Init();
-    sample_rate = hw.AudioSampleRate();
-    bypassHard = bypassSoft = false;
+    samplerate = hw.AudioSampleRate();
+    filter.Init(samplerate);
+    InitKnobs();
+    passthru = false;
 
-    hw.StartAudio(AudioCallback);
     hw.StartAdc();
+    hw.StartAudio(AudioCallback);
 
     while (1)
     {
-        if (bypassSoft)
-            soft_led = 255.f;
-        else
-            soft_led = 0.f;
-
-        if (bypassHard)
-            hard_led = 255.f;
-        else
-            hard_led = 0.f;
-
-        hw.led_driver_.SetLed(DaisyField::LED_KEY_B1, soft_led);
-        hw.led_driver_.SetLed(DaisyField::LED_KEY_B2, hard_led);
-        hw.led_driver_.SwapBuffersAndTransmit();
-
-        // for (int i = 0; i < 8; i++)
-        // {
-        // 	petal.SetRingLed((DaisyPetal::RingLed)i, 1.f, 0.f, 0.f);
-        // }
-
+        UpdateLeds();
+        UpdateDisplay();
         dsy_system_delay(6);
         // Do Stuff InfInitely Here
     }
+}
+
+void UpdateControls()
+{
+    hw.ProcessAnalogControls();
+    hw.ProcessDigitalControls();
+
+    passthru = hw.GetSwitch(hw.SW_1)->RisingEdge() ? !passthru : passthru;
+
+    float freqVal = hw.GetKnobValue(knobs[0]);
+    float resVal = hw.GetKnobValue(knobs[1]);
+    float drvVal = hw.GetKnobValue(knobs[2]);
+    float typeVal = hw.GetKnobValue(knobs[3]);
+
+    if (condUpdate.Process(freqVal))
+        filter.updateFreq(freqVal * 2000 + 20);
+
+    if (condUpdate.Process(resVal))
+        filter.updateRes(resVal);
+
+    if (condUpdate.Process(drvVal))
+        filter.updateDrv(drvVal * 0.001);
+
+    if (condUpdate.Process(typeVal))
+        filter.updateType(typeVal);
+}
+
+void UpdateDisplay()
+{
+    char type[8];
+
+    for (uint8_t q = 0; q < sizeof(strbuff); q++)
+    {
+        strbuff[q] = 0;
+    }
+
+    sprintf(strbuff, "F:%5d", static_cast<int>(filter.freq_));
+    display.SetCursor(0, 0);
+    display.WriteString(strbuff, Font_7x10, true);
+
+    sprintf(strbuff, "Q:%5d", static_cast<int>(filter.res_ * 1000));
+    display.SetCursor(0, 10);
+    display.WriteString(strbuff, Font_7x10, true);
+
+    sprintf(strbuff, "DRV:%5d", static_cast<int>(filter.drv_ * 1000));
+    display.SetCursor(0, 20);
+    display.WriteString(strbuff, Font_7x10, true);
+
+    switch (filter.type_)
+    {
+    case 0:
+        strncpy(type, "LOW ", sizeof(type));
+        break;
+    case 1:
+        strncpy(type, "BAND", sizeof(type));
+        break;
+    case 2:
+        strncpy(type, "HIGH", sizeof(type));
+        break;
+    }
+    sprintf(strbuff, "TYP:%s", type);
+    display.SetCursor(0, 30);
+    display.WriteString(strbuff, Font_7x10, true);
+
+    const char *passthruDisp = (passthru) ? "PASS" : "FILT";
+    sprintf(strbuff, passthruDisp);
+    display.SetCursor(0, 40);
+    display.WriteString(strbuff, Font_7x10, true);
+    display.Update();
+}
+void UpdateLeds()
+{
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_1, filter.freq_);
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_2, filter.res_);
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_3, filter.drv_);
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_4, hw.GetKnobValue(knobs[3]));
+    hw.led_driver.SwapBuffersAndTransmit();
 }
