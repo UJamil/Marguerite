@@ -76,8 +76,6 @@ struct Filter
     }
     void updateRes(float res)
     {
-        if (res > 1.0f)
-            res = 1.0f;
         res_ = res;
         filt.SetRes(res_);
     }
@@ -134,17 +132,13 @@ static void AudioCallback(float **in, float **out, size_t size)
         for (int chn = 0; chn < 2; chn++)
         {
             float sig = in[chn][i];
-            sig += filter.Process(in[chn][i]);
             sig *= 0.5f;
+            sig += filter.Process(in[chn][i]);
 
             if (!passthru)
-            {
                 out[chn][i] = sig;
-            }
             else
-            {
                 out[chn][i] = in[chn][i];
-            }
         }
     }
 }
@@ -166,7 +160,6 @@ int main(void)
         UpdateLeds();
         UpdateDisplay();
         dsy_system_delay(6);
-        // Do Stuff InfInitely Here
     }
 }
 
@@ -183,13 +176,13 @@ void UpdateControls()
     float typeVal = hw.GetKnobValue(knobs[3]);
 
     if (condUpdate.Process(freqVal))
-        filter.updateFreq(freqVal * 2000 + 20);
+        filter.updateFreq(exp(log(20) + freqVal * (log(20000) - log(20)))); // logarithmic scale from 20Hz to 20kHz
 
     if (condUpdate.Process(resVal))
-        filter.updateRes(resVal);
+        filter.updateRes(resVal + 0.06); // resonance from 0.06 to 1.0, non-zero because of bug
 
     if (condUpdate.Process(drvVal))
-        filter.updateDrv(drvVal * 0.001);
+        filter.updateDrv(0.001 * drvVal); // log scale
 
     if (condUpdate.Process(typeVal))
         filter.updateType(typeVal);
@@ -208,11 +201,11 @@ void UpdateDisplay()
     display.SetCursor(0, 0);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "Q:%5d", static_cast<int>(filter.res_ * 1000));
+    sprintf(strbuff, "Q:%4d", static_cast<int>(filter.res_ * 100));
     display.SetCursor(0, 10);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "DRV:%5d", static_cast<int>(filter.drv_ * 1000));
+    sprintf(strbuff, "DRV:%3d", static_cast<int>(filter.drv_ * 10000));
     display.SetCursor(0, 20);
     display.WriteString(strbuff, Font_7x10, true);
 
@@ -240,9 +233,9 @@ void UpdateDisplay()
 }
 void UpdateLeds()
 {
-    hw.led_driver.SetLed(DaisyField::LED_KNOB_1, filter.freq_);
-    hw.led_driver.SetLed(DaisyField::LED_KNOB_2, filter.res_);
-    hw.led_driver.SetLed(DaisyField::LED_KNOB_3, filter.drv_);
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_1, hw.GetKnobValue(knobs[0]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_2, hw.GetKnobValue(knobs[1]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_3, hw.GetKnobValue(knobs[2]));
     hw.led_driver.SetLed(DaisyField::LED_KNOB_4, hw.GetKnobValue(knobs[3]));
     hw.led_driver.SwapBuffersAndTransmit();
 }
