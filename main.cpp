@@ -6,6 +6,8 @@
 using namespace daisy;
 using namespace daisysp;
 
+#define NUM_FILTERS 2
+
 // Declarations
 class DaisyField hw;
 
@@ -17,7 +19,7 @@ struct ConditionalUpdate
     float oldVal = 0;
     bool Process(float newVal)
     {
-        if (abs(newVal - oldVal) > 0.04f)
+        if (abs(newVal - oldVal) > 0.01f)
         {
             oldVal = newVal;
             return true;
@@ -26,13 +28,13 @@ struct ConditionalUpdate
     }
 };
 
-ConditionalUpdate condUpdate;
+ConditionalUpdate condUpdates[8];
 
 struct Filter
 {
     Svf filt;
     float amp_, drv_, freq_, res_, rate_;
-    int type_;
+    uint8_t type_;
 
     void Init(float samplerate)
     {
@@ -103,9 +105,10 @@ struct Filter
     }
 };
 
-Filter filter;
+// Filter filter1, filter2;
+Filter filter[2];
 OledDisplay display;
-bool passthru;
+bool passthru, filt2;
 void UpdateControls();
 void UpdateDisplay();
 void UpdateLeds();
@@ -126,14 +129,27 @@ void InitKnobs()
 static void AudioCallback(float **in, float **out, size_t size)
 {
     UpdateControls();
-
     for (size_t i = 0; i < size; i++)
     {
-        for (int chn = 0; chn < 2; chn++)
+        for (uint8_t chn = 0; chn < 2; chn++)
         {
-            float sig = in[chn][i];
-            sig *= 0.5f;
-            sig += filter.Process(in[chn][i]);
+            float sig = 0.f;
+            // float sig = in[chn][i];
+            // sig *= 0.5f;
+            float temp = 0.f;
+            sig += filter[0].Process(in[chn][i]);
+            temp = sig;
+
+            if (filt2)
+            {
+                sig += filter[1].Process(in[chn][i]);
+            }
+            else if (!filt2)
+            {
+                sig = filter[1].Process(temp);
+            }
+
+            // sig *= 0.5f;
 
             if (!passthru)
                 out[chn][i] = sig;
@@ -148,7 +164,8 @@ int main(void)
     float samplerate;
     hw.Init();
     samplerate = hw.AudioSampleRate();
-    filter.Init(samplerate);
+    filter[0].Init(samplerate);
+    filter[1].Init(samplerate);
     InitKnobs();
     passthru = false;
 
@@ -167,68 +184,86 @@ void UpdateControls()
 {
     hw.ProcessAnalogControls();
     hw.ProcessDigitalControls();
-
     passthru = hw.GetSwitch(hw.SW_1)->RisingEdge() ? !passthru : passthru;
+    filt2 = hw.GetSwitch(hw.SW_2)->RisingEdge() ? !filt2 : filt2;
 
-    float freqVal = hw.GetKnobValue(knobs[0]);
-    float resVal = hw.GetKnobValue(knobs[1]);
-    float drvVal = hw.GetKnobValue(knobs[2]);
-    float typeVal = hw.GetKnobValue(knobs[3]);
+    float freqVal[2], resVal[2], drvVal[2], typeVal[2];
+    for (uint8_t i = 0; i < NUM_FILTERS; i++)
+    {
+        freqVal[i] = hw.GetKnobValue(knobs[(i % 2) * 4]);
+        resVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 1]);
+        drvVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 2]);
+        typeVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 3]);
 
-    if (condUpdate.Process(freqVal))
-        filter.updateFreq(exp(log(20) + freqVal * (log(20000) - log(20)))); // logarithmic scale from 20Hz to 20kHz
+        // if (condUpdates[(i % 2) * 4].Process(freqVal[i]))
+        filter[i].updateFreq(exp(log(20) + freqVal[i] * (log(20000) - log(20)))); // logarithmic scale from 20Hz to 20kHz
 
-    if (condUpdate.Process(resVal))
-        filter.updateRes(resVal + 0.06); // resonance from 0.06 to 1.0, non-zero because of bug
+        if (condUpdates[((i % 2) * 4) + 1].Process(resVal[i]))
+            filter[i].updateRes(resVal[i] * (1.0 - 0.06) + 0.06); // resonance from 0.06 to 1.0, non-zero because of bug
 
-    if (condUpdate.Process(drvVal))
-        filter.updateDrv(0.001 * drvVal); // log scale
+        if (condUpdates[((i % 2) * 4) + 2].Process(drvVal[i]))
+            filter[i].updateDrv(0.001 * drvVal[i]);
 
-    if (condUpdate.Process(typeVal))
-        filter.updateType(typeVal);
+        if (condUpdates[((i % 2) * 4) + 3].Process(typeVal[i]))
+            filter[i].updateType(typeVal[i]);
+    }
 }
 
 void UpdateDisplay()
 {
-    char type[8];
+    char type1[8];
+    char type2[8];
 
     for (uint8_t q = 0; q < sizeof(strbuff); q++)
     {
         strbuff[q] = 0;
     }
 
-    sprintf(strbuff, "F:%5d", static_cast<int>(filter.freq_));
+    sprintf(strbuff, "F1:%5d  F2:%5d", static_cast<int>(round(filter[0].freq_)), static_cast<int>(round(filter[1].freq_)));
     display.SetCursor(0, 0);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "Q:%4d", static_cast<int>(filter.res_ * 100));
+    sprintf(strbuff, "Q1:%4d   Q2:%4d", static_cast<int>(filter[0].res_ * 100), static_cast<int>(filter[1].res_ * 100));
     display.SetCursor(0, 10);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "DRV:%3d", static_cast<int>(filter.drv_ * 10000));
+    sprintf(strbuff, "DRV1:%3d  DRV2:%3d", static_cast<int>(filter[0].drv_ * 10000), static_cast<int>(filter[1].drv_ * 10000));
     display.SetCursor(0, 20);
     display.WriteString(strbuff, Font_7x10, true);
 
-    switch (filter.type_)
+    switch (filter[0].type_)
     {
     case 0:
-        strncpy(type, "LOW ", sizeof(type));
+        strncpy(type1, "LOW ", sizeof(type1));
         break;
     case 1:
-        strncpy(type, "BAND", sizeof(type));
+        strncpy(type1, "BAND", sizeof(type1));
         break;
     case 2:
-        strncpy(type, "HIGH", sizeof(type));
+        strncpy(type1, "HIGH", sizeof(type1));
         break;
     }
-    sprintf(strbuff, "TYP:%s", type);
+    switch (filter[1].type_)
+    {
+    case 0:
+        strncpy(type2, "LOW ", sizeof(type2));
+        break;
+    case 1:
+        strncpy(type2, "BAND", sizeof(type2));
+        break;
+    case 2:
+        strncpy(type2, "HIGH", sizeof(type2));
+        break;
+    }
+    sprintf(strbuff, "TYP1:%s TYP2:%s", type1, type2);
     display.SetCursor(0, 30);
     display.WriteString(strbuff, Font_7x10, true);
 
     const char *passthruDisp = (passthru) ? "PASS" : "FILT";
-    sprintf(strbuff, passthruDisp);
+    const char *filt2Disp = (filt2) ? "PAR" : "SER";
+    sprintf(strbuff, "%s %s", passthruDisp, filt2Disp);
     display.SetCursor(0, 40);
-    display.WriteString(strbuff, Font_7x10, true);
+    display.WriteString(strbuff, Font_7x10, false);
     display.Update();
 }
 void UpdateLeds()
@@ -237,5 +272,9 @@ void UpdateLeds()
     hw.led_driver.SetLed(DaisyField::LED_KNOB_2, hw.GetKnobValue(knobs[1]));
     hw.led_driver.SetLed(DaisyField::LED_KNOB_3, hw.GetKnobValue(knobs[2]));
     hw.led_driver.SetLed(DaisyField::LED_KNOB_4, hw.GetKnobValue(knobs[3]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_5, hw.GetKnobValue(knobs[4]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_6, hw.GetKnobValue(knobs[5]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_7, hw.GetKnobValue(knobs[6]));
+    hw.led_driver.SetLed(DaisyField::LED_KNOB_8, hw.GetKnobValue(knobs[7]));
     hw.led_driver.SwapBuffersAndTransmit();
 }
