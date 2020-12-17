@@ -2,6 +2,7 @@
 #include "daisysp.h" // Uncomment this if you want to use the DSP library.
 #include <stdio.h>
 #include <string>
+#include <cstring>
 
 using namespace daisy;
 using namespace daisysp;
@@ -190,21 +191,21 @@ void UpdateControls()
     float freqVal[2], resVal[2], drvVal[2], typeVal[2];
     for (uint8_t i = 0; i < NUM_FILTERS; i++)
     {
-        freqVal[i] = hw.GetKnobValue(knobs[(i % 2) * 4]);
-        resVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 1]);
-        drvVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 2]);
-        typeVal[i] = hw.GetKnobValue(knobs[((i % 2) * 4) + 3]);
+        freqVal[i] = hw.GetKnobValue(knobs[i * 4]);
+        resVal[i] = hw.GetKnobValue(knobs[(i * 4) + 1]);
+        drvVal[i] = hw.GetKnobValue(knobs[(i * 4) + 2]);
+        typeVal[i] = hw.GetKnobValue(knobs[(i * 4) + 3]);
 
         // if (condUpdates[(i % 2) * 4].Process(freqVal[i]))
         filter[i].updateFreq(exp(log(20) + freqVal[i] * (log(20000) - log(20)))); // logarithmic scale from 20Hz to 20kHz
 
-        if (condUpdates[((i % 2) * 4) + 1].Process(resVal[i]))
+        if (condUpdates[(i * 4) + 1].Process(resVal[i]))
             filter[i].updateRes(resVal[i] * (1.0 - 0.06) + 0.06); // resonance from 0.06 to 1.0, non-zero because of bug
 
-        if (condUpdates[((i % 2) * 4) + 2].Process(drvVal[i]))
+        if (condUpdates[(i * 4) + 2].Process(drvVal[i]))
             filter[i].updateDrv(0.001 * drvVal[i]);
 
-        if (condUpdates[((i % 2) * 4) + 3].Process(typeVal[i]))
+        if (condUpdates[(i * 4) + 3].Process(typeVal[i]))
             filter[i].updateType(typeVal[i]);
     }
 }
@@ -219,40 +220,40 @@ void UpdateDisplay()
         strbuff[q] = 0;
     }
 
-    sprintf(strbuff, "F1:%5d  F2:%5d", static_cast<int>(round(filter[0].freq_)), static_cast<int>(round(filter[1].freq_)));
+    sprintf(strbuff, "F1:%5d F2:%5d", static_cast<int>(round(filter[0].freq_)), static_cast<int>(round(filter[1].freq_)));
     display.SetCursor(0, 0);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "Q1:%4d   Q2:%4d", static_cast<int>(filter[0].res_ * 100), static_cast<int>(filter[1].res_ * 100));
+    sprintf(strbuff, "Q1:%5d Q2:%5d", static_cast<int>(filter[0].res_ * 100), static_cast<int>(filter[1].res_ * 100));
     display.SetCursor(0, 10);
     display.WriteString(strbuff, Font_7x10, true);
 
-    sprintf(strbuff, "DRV1:%3d  DRV2:%3d", static_cast<int>(filter[0].drv_ * 10000), static_cast<int>(filter[1].drv_ * 10000));
+    sprintf(strbuff, "DRV1:%3d DRV2:%3d", static_cast<int>(filter[0].drv_ * 10000), static_cast<int>(filter[1].drv_ * 10000));
     display.SetCursor(0, 20);
     display.WriteString(strbuff, Font_7x10, true);
 
     switch (filter[0].type_)
     {
     case 0:
-        strncpy(type1, "LOW ", sizeof(type1));
+        strncpy(type1, "LOW", sizeof(type1));
         break;
     case 1:
-        strncpy(type1, "BAND", sizeof(type1));
+        strncpy(type1, "BND", sizeof(type1));
         break;
     case 2:
-        strncpy(type1, "HIGH", sizeof(type1));
+        strncpy(type1, " HI", sizeof(type1));
         break;
     }
     switch (filter[1].type_)
     {
     case 0:
-        strncpy(type2, "LOW ", sizeof(type2));
+        strncpy(type2, "LOW", sizeof(type2));
         break;
     case 1:
-        strncpy(type2, "BAND", sizeof(type2));
+        strncpy(type2, "BND", sizeof(type2));
         break;
     case 2:
-        strncpy(type2, "HIGH", sizeof(type2));
+        strncpy(type2, " HI", sizeof(type2));
         break;
     }
     sprintf(strbuff, "TYP1:%s TYP2:%s", type1, type2);
